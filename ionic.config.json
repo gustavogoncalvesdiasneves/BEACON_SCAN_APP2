@@ -1,0 +1,7 @@
+{
+  "name": "BEACON_2",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
