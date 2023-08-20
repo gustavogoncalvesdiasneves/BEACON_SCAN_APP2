@@ -17,6 +17,8 @@ export class TabsPage {
   activateBluetoothError: string = '';
   scanDevicesError: string = '';
   devices: any[] = [];
+  rssiValue: number = 0; // Inicializa com um valor padrão
+
 
   constructor(
     private navCtrl : NavController,
@@ -24,7 +26,12 @@ export class TabsPage {
     private alertContrl : AlertController,
     private BLE : BluetoothLE,
     private ngZone : NgZone,
-    ) { }
+    ) {
+      this.updateRSSI();
+      setInterval(() => {
+        this.updateRSSI();
+      }, 1500); // Atualiza a cada 1,5 segundos
+    }
   
     activateBluetooth() {
       this.bluetoothSerial.isEnabled().then(response => {
@@ -107,43 +114,52 @@ export class TabsPage {
     
   }
 
-  scanDevices() {
-    const scanParams = { services: [] }; // Você pode especificar os serviços a serem procurados
-    this.BLE.startScan(scanParams).subscribe(
-      (device) => {
-        console.log('Device found:', device);
-        // Verifica se o dispositivo já existe na lista
-        const existingDeviceIndex = this.devices.findIndex(dev => dev.address === device.address);
-        if (existingDeviceIndex !== -1) {
-          // Atualiza o valor RSSI para o dispositivo existente
-          this.devices[existingDeviceIndex].rssi = device.rssi;
-        } else {
-          // Adiciona um novo dispositivo à lista
-          this.devices.push({
-            name: device.name,
-            address: device.address,
-            isConnected: false,
-            rssi: device.rssi
-          });
-        }
-      },
-      (error) => {
-        this.scanDevicesError = 'Erro ao buscar dispositivos: ' + error;
-        console.error('Erro ao buscar dispositivos:', error);
-      }
-    );
-  }
+  //scanDevices() {
+  //  const scanParams = { services: [] }; // Você pode especificar os serviços a serem procurados
+  //  this.BLE.startScan(scanParams).subscribe(
+  //    (device) => {
+  //      console.log('Device found:', device);
+  //      // Verifica se o dispositivo já existe na lista
+  //      const existingDeviceIndex = this.devices.findIndex(dev => dev.address === device.address);
+  //      if (existingDeviceIndex !== -1) {
+  //        // Atualiza o valor RSSI para o dispositivo existente
+  //        this.devices[existingDeviceIndex].rssi = device.rssi;
+  //      } else {
+  //        // Adiciona um novo dispositivo à lista
+  //        this.devices.push({
+  //          name: device.name,
+  //          address: device.address,
+  //          isConnected: false,
+  //          rssi: device.rssi
+  //        });
+  //      }
+  //    },
+  //    (error) => {
+  //      this.scanDevicesError = 'Erro ao buscar dispositivos: ' + error;
+  //      console.error('Erro ao buscar dispositivos:', error);
+  //    }
+  //  );
+  //}
   
 
 
-  //scanDevices() {
-  //  this.bluetoothSerial.list().then((devices) => {
-  //    this.devices = devices;
-  //    this.scanDevicesError = ''; // Limpa o erro anterior se tiver sucesso
-  //  }).catch(error => {
-  //    this.scanDevicesError = 'Erro ao buscar dispositivos: ' + (error.message || error);
-  //    console.error('Erro ao buscar dispositivos:', error);
-  //  });
-  //}
+  scanDevices() {
+    this.bluetoothSerial.list().then((devices) => {
+      this.devices = devices;
+      this.scanDevicesError = ''; // Limpa o erro anterior se tiver sucesso
+    }).catch(error => {
+      this.scanDevicesError = 'Erro ao buscar dispositivos: ' + (error.message || error);
+      console.error('Erro ao buscar dispositivos:', error);
+    });
+  }
+
+  // Função para atualizar o valor do RSSI
+  updateRSSI() {
+    this.bluetoothSerial.readRSSI().then((rssi) => {
+      this.rssiValue = rssi;
+    }).catch((error) => {
+      console.error('Erro ao ler RSSI:', error);
+    });
+  }
 
 }

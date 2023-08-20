@@ -35,7 +35,7 @@
   <div *ngFor="let device of devices">
     <h3>{{ device.name }}</h3>
     <p>{{ device.id }}</p>
-    <p>{{ device.rssi }}</p>
+    <p>RSSI: {{ rssiValue }}</p>
     <ion-button (click)="connect(device.address)">Conectar</ion-button>
   </div>
   
