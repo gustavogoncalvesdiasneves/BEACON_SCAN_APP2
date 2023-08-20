@@ -1,0 +1,39 @@
+# Sincronizar arquivos do NgModules + Compilar a pasta WWW (arquivos Necessarios para gerar o APP)
+
+###############
+# OBS: Caso queira compilar pela segunda vez remova a pasta WWW e android (que vira nos proximos passos)
+# Isso somente para casos de atualizações de apps!!
+##############
+
+npx cap sync
+
+#or
+
+npm run build
+
+# Build pasta android
+
+npx cap add android
+
+# Após isso vai criar a pasta android
+
+sudo ./gradlew assembleDebug
+
+# Comando acima vai gerar um Apk Debug para ser instalado em qualquer Android
+
+###################
+# Antes disso crie um arquivo com o nome 'local.properties'
+# adicione a linha:
+# sdk.dir=/SEU/CAMINHO/QUE/FOI/INSTALADO/O/SDK
+# No meu cado sdk.dir=/root/Android/Sdk
+# Após isso salve o arquivo e feche
+# e de o mesmo comando acima
+###################
+
+##############################Vesões que usei##################################
+ionic = 6.20.6
+npm = 8.19.2
+npx = 8.19.2
+node = 18.12.1
+nvm = 0.39.1
+#############################################################################

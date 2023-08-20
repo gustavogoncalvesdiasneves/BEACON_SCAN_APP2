@@ -1,12 +1,66 @@
 #container {
   text-align: center;
-
   position: absolute;
   left: 0;
   right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0; /* Set the top position to 0 to cover the entire screen */
+  bottom: 0; /* Set the bottom position to 0 to cover the entire screen */
+  background-color: #044E80;
+  //background-image: url('../img/Simova_Logo_BackGround_White.png');
+
 }
+
+.logo_simova_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Set the height of the container, adjust as needed */
+  background-color: #044E80;
+}
+
+.logo_simova_circle {
+  
+  width: 200px; /* Adjust the width as needed */
+  height: 200px; /* Adjust the height as needed */
+  background-image: url("../img/Edit.png");
+  position: relative;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 50%; 
+  /* Add a fade-in animation */
+  animation: fade-in 3s ease-in-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.text_wellcome {
+  text-align: center;
+  font-size: 0.9rem;
+  color: white;
+  position: absolute;
+  font-weight: bold;
+  bottom: 0; /* Position the text at the bottom of the container */
+  left: 0; /* Align the text to the left */
+  right: 0; /* Align the text to the right */
+  margin-bottom: 20%; /* Add some margin at the bottom */
+  /* Add a fade-in animation */
+  animation: fade-in 3s ease-in-out;
+}
+
+
+.timer {
+  font-size: 18px;
+  text-align: center;
+  margin-top: 20px;
+}
+
 
 #container strong {
   font-size: 20px;
@@ -24,4 +78,49 @@
 
 #container a {
   text-decoration: none;
+}
+
+ion-tab-bar {
+  position: relative;
+  border-radius: 25px 25px 0 0;
+  width: 100%;
+  margin: 0 auto;
+  border-color: rgb(238, 238, 238);
+  --background: #4747d7;
+  border-style: solid;
+  border-width: 2px;
+}
+
+ion-tab-button ion-label {
+  position: fixed;
+  padding: 10px 0;
+  margin: 1.5rem 0 0 0;
+}
+
+ion-tab-button {
+  --color: var(--ion-color-medium);
+  --color-selected: aqua;
+
+  &::before {
+    background-color: transparent;
+    display: block;
+    content: "";
+    margin: 0 auto;
+    width: 20px;
+    height: 2px;
+  }
+
+  &.tab-selected::before {
+    background-color: blue;
+  }
+}
+
+ion-tab-button ion-icon {
+  margin: 0 0 0.5rem 0;
+}
+
+.home-tab {
+
+  color: aqua;
+
 }

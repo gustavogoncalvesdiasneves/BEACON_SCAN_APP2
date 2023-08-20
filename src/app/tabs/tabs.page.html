@@ -1,0 +1,75 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>tabs</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">tabs</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!--
+    name
+    address
+    id
+    class
+  -->
+
+  <!--
+    <ion-button (click)="scanDevices()">Buscar Dispositivos</ion-button>
+  <ion-list>
+    <ion-item *ngFor="let device of devices">
+      {{ device.name }} - RSSI: {{ device.rssi }}
+    </ion-item>
+  </ion-list>
+
+  -->
+  
+  <ion-button (click)="activateBluetooth()">Ativar Bluetooth</ion-button>
+  <ion-button (click)="scanDevices()">Buscar Dispositivos</ion-button>
+
+  <h2>Função activateBluetooth</h2>
+  <div *ngFor="let device of devices">
+    <h3>{{ device.name }}</h3>
+    <p>{{ device.id }}</p>
+    <p>{{ device.rssi }}</p>
+    <ion-button (click)="connect(device.address)">Conectar</ion-button>
+  </div>
+  
+  <div *ngIf="devices.length === 0">
+    <p>Nenhum aparelho ao alcance...</p>
+  </div>
+  
+  <p>{{ activateBluetoothError }}</p>
+  <p>{{ scanDevicesError }}</p>
+
+  <h2>Função scanDevices</h2>
+  <ion-list>
+    <ion-item *ngFor="let device of devices">
+      {{ device.name }} - RSSI: {{ device.rssi }}
+    </ion-item>
+  </ion-list>
+
+
+  
+</ion-content>
+
+<div class="tabs">
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button (click)="navHome()" tab="back">
+      <ion-icon size="large" color="primary" name="bluetooth-outline"></ion-icon>
+      <ion-label color="primary">_______</ion-label>
+    </ion-tab-button>
+    <ion-tab-button class="home-tab" tab="home">
+      <ion-icon size="large" name="home-outline"></ion-icon>
+      <ion-label>_______</ion-label>
+    </ion-tab-button>
+    <ion-tab-button (click)="navOrc()" tab="orcamento">
+      <ion-icon size="large" name="pencil-outline"></ion-icon>
+      <ion-label>_______</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</div>
