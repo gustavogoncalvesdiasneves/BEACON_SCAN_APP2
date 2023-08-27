@@ -1,0 +1,49 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>radar_ble</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">radar_ble</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!--
+
+    
+  -->
+
+  <ion-button (click)="activateBluetooth()">Ativar Bluetooth</ion-button>
+  <ion-button (click)="scanForDevices()">Scan for Devices</ion-button>
+
+  <div class="round_map">
+    <div class="circle">
+      <div class="device" *ngFor="let device of devices" [style.transform]="getDevicePosition(device.rssi)">
+        {{ device.name }}
+      </div>
+    </div>
+  </div>
+
+  <p>{{ activateBluetoothError }}</p>
+  <p>{{ scanDevicesError }}</p>
+</ion-content>
+
+<div class="tabs">
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="back">
+      <ion-icon size="large" (click)="navBluetoothHome()" name="bluetooth-outline"></ion-icon>
+      <ion-label>_______</ion-label>
+    </ion-tab-button>
+    <ion-tab-button class="home-tab" tab="home">
+      <ion-icon size="large" name="home-outline"></ion-icon>
+      <ion-label>_______</ion-label>
+    </ion-tab-button>
+    <ion-tab-button (click)="navRadarBLE()" tab="orcamento">
+      <ion-icon color="primary" size="large" name="locate"></ion-icon>
+      <ion-label color="primary">_______</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</div>

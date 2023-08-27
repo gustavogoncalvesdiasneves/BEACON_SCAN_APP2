@@ -4,7 +4,8 @@ import { NavController } from '@ionic/angular';
 import { BluetoothSerial } from '@awesome-cordova-plugins/bluetooth-serial/ngx';
 import { AlertController } from '@ionic/angular';
 //import { error } from 'console';
-import { BluetoothLE } from '@awesome-cordova-plugins/bluetooth-le/ngx';
+import { BLE } from '@ionic-native/ble/ngx';
+import { BluetoothLE, InitParams, Device, ScanStatus } from '@awesome-cordova-plugins/bluetooth-le/ngx';
 
 
 @Component({
@@ -24,13 +25,11 @@ export class TabsPage {
     private navCtrl : NavController,
     private bluetoothSerial: BluetoothSerial,
     private alertContrl : AlertController,
-    private BLE : BluetoothLE,
+    //private bluetoothLE : BluetoothLE,
     private ngZone : NgZone,
+    private ble: BLE
     ) {
-      this.updateRSSI();
-      setInterval(() => {
-        this.updateRSSI();
-      }, 1500); // Atualiza a cada 1,5 segundos
+    
     }
   
     activateBluetooth() {
@@ -69,6 +68,15 @@ export class TabsPage {
     this.bluetoothSerial.disconnect()
     console.log('Dispositivo desconectado')
   }
+
+  scanForDevices() {
+    this.devices = []; // Limpa a lista de dispositivos antes de escanear novamente
+    this.ble.scan([], 5).subscribe(device => {
+      console.log(device);
+      this.devices.push(device);
+    });
+  }
+
 
   deviceConnected(){
     this.bluetoothSerial.subscribe('/n').subscribe(success =>{
@@ -109,12 +117,29 @@ export class TabsPage {
     this.navCtrl.navigateForward('home')
   }
 
-  navOrc() {
-    this.navCtrl.navigateForward('orcamento')
+  navRadarBLE() {
+    this.navCtrl.navigateForward('radar-ble')
     
   }
 
-  //scanDevices() {
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//scanDevices() {
   //  const scanParams = { services: [] }; // Você pode especificar os serviços a serem procurados
   //  this.BLE.startScan(scanParams).subscribe(
   //    (device) => {
@@ -141,25 +166,58 @@ export class TabsPage {
   //  );
   //}
   
+  //scanDevices() {
+  //  const params: InitParams = {
+  //    request: true,
+  //    statusReceiver: true,
+  //  };
+//
+  //  this.bluetoothLE.initialize(params).subscribe(
+  //    () => {
+  //      console.log('BluetoothLE initialized');
+//
+  //      const scanParams = {
+  //        services: [], // Put the services you want to search for here
+  //        allowDuplicates: true,
+  //        scanMode: this.bluetoothLE.SCAN_MODE_LOW_LATENCY,
+  //      };
+//
+  //      this.bluetoothLE.startScan(scanParams).subscribe(
+  //        (result) => {
+  //          if (result.status === 'scanResult') {
+  //            const scanResult = result as ScanStatus;
+  //            console.log('Device found:', scanResult);
+  //            this.devices.push(scanResult);
+  //          } else if (result.status === 'scanStarted') {
+  //            console.log('Scan started');
+  //          }
+  //        },
+  //        (error) => {
+  //          console.error('Scan error:', error);
+  //        }
+  //      );
+  //    },
+  //    (error) => {
+  //      console.error('BluetoothLE initialization error:', error);
+  //    }
+  //  );
+  //}
 
-
-  scanDevices() {
-    this.bluetoothSerial.list().then((devices) => {
-      this.devices = devices;
-      this.scanDevicesError = ''; // Limpa o erro anterior se tiver sucesso
-    }).catch(error => {
-      this.scanDevicesError = 'Erro ao buscar dispositivos: ' + (error.message || error);
-      console.error('Erro ao buscar dispositivos:', error);
-    });
-  }
+  //scanDevices() {
+  //  this.bluetoothSerial.list().then((devices) => {
+  //    this.devices = devices;
+  //    this.scanDevicesError = ''; // Limpa o erro anterior se tiver sucesso
+  //  }).catch(error => {
+  //    this.scanDevicesError = 'Erro ao buscar dispositivos: ' + (error.message || error);
+  //    console.error('Erro ao buscar dispositivos:', error);
+  //  });
+  //}
 
   // Função para atualizar o valor do RSSI
-  updateRSSI() {
-    this.bluetoothSerial.readRSSI().then((rssi) => {
-      this.rssiValue = rssi;
-    }).catch((error) => {
-      console.error('Erro ao ler RSSI:', error);
-    });
-  }
-
-}
+  //updateRSSI() {
+  //  this.bluetoothSerial.readRSSI().then((rssi) => {
+  //    this.rssiValue = rssi;
+  //  }).catch((error) => {
+  //    console.error('Erro ao ler RSSI:', error);
+  //  });
+  //}

@@ -10,10 +10,14 @@ import { AppRoutingModule } from './app-routing.module';
 import { BluetoothSerial } from '@awesome-cordova-plugins/bluetooth-serial/ngx';
 import { BluetoothLE } from '@awesome-cordova-plugins/bluetooth-le/ngx';
 
+import { BLE } from '@ionic-native/ble/ngx';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
+
+
 @NgModule({
   declarations: [AppComponent],
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, BluetoothSerial, BluetoothLE,
+  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, Geolocation, BLE, BluetoothSerial, BluetoothLE,
   ],
   bootstrap: [AppComponent],
 })

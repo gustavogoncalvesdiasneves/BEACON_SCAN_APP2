@@ -29,15 +29,23 @@
   -->
   
   <ion-button (click)="activateBluetooth()">Ativar Bluetooth</ion-button>
-  <ion-button (click)="scanDevices()">Buscar Dispositivos</ion-button>
+  <ion-button (click)="scanForDevices()">Scan for Devices</ion-button>
+
 
   <h2>Função activateBluetooth</h2>
   <div *ngFor="let device of devices">
     <h3>{{ device.name }}</h3>
     <p>{{ device.id }}</p>
-    <p>RSSI: {{ rssiValue }}</p>
+    <p>RSSI: {{ device.rssi }}</p>
     <ion-button (click)="connect(device.address)">Conectar</ion-button>
   </div>
+
+  <ion-list>
+    <ion-item *ngFor="let device of devices">
+      <ion-label>{{ device.name || 'Unnamed Device' }}</ion-label>
+      <ion-label>{{ device.rssi || 'RSSI fora de alcanse' }}</ion-label>
+    </ion-item>
+  </ion-list>
   
   <div *ngIf="devices.length === 0">
     <p>Nenhum aparelho ao alcance...</p>
@@ -46,12 +54,7 @@
   <p>{{ activateBluetoothError }}</p>
   <p>{{ scanDevicesError }}</p>
 
-  <h2>Função scanDevices</h2>
-  <ion-list>
-    <ion-item *ngFor="let device of devices">
-      {{ device.name }} - RSSI: {{ device.rssi }}
-    </ion-item>
-  </ion-list>
+  
 
 
   
@@ -59,7 +62,7 @@
 
 <div class="tabs">
   <ion-tab-bar slot="bottom">
-    <ion-tab-button (click)="navHome()" tab="back">
+    <ion-tab-button tab="back">
       <ion-icon size="large" color="primary" name="bluetooth-outline"></ion-icon>
       <ion-label color="primary">_______</ion-label>
     </ion-tab-button>
@@ -67,9 +70,18 @@
       <ion-icon size="large" name="home-outline"></ion-icon>
       <ion-label>_______</ion-label>
     </ion-tab-button>
-    <ion-tab-button (click)="navOrc()" tab="orcamento">
-      <ion-icon size="large" name="pencil-outline"></ion-icon>
+    <ion-tab-button (click)="navRadarBLE()" tab="orcamento">
+      <ion-icon size="large" name="locate"></ion-icon>
       <ion-label>_______</ion-label>
     </ion-tab-button>
   </ion-tab-bar>
 </div>
+
+<!--
+<h2>Função scanDevices</h2>
+  <ion-list>
+    <ion-item *ngFor="let device of devices">
+      {{ device.name }} - RSSI: {{ device.rssi }}
+    </ion-item>
+  </ion-list>
+-->

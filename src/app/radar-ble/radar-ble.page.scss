@@ -1,0 +1,89 @@
+#container {
+    text-align: center;
+  
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .round_map {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Set the height of the container, adjust as needed */
+    //background-color: #044E80;
+  }
+  
+  .circle {
+    width: 300px;
+    height: 300px;
+    background-color: #8c8c8c;
+    position: relative;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 50%;
+  }
+  
+  .device {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: blue;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10px;
+    color: white;
+    text-align: center;
+  }  
+  
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .text_wellcome {
+    text-align: center;
+    font-size: 0.9rem;
+    color: white;
+    position: absolute;
+    font-weight: bold;
+    bottom: 0; /* Position the text at the bottom of the container */
+    left: 0; /* Align the text to the left */
+    right: 0; /* Align the text to the right */
+    margin-bottom: 20%; /* Add some margin at the bottom */
+    /* Add a fade-in animation */
+    animation: fade-in 3s ease-in-out;
+  }
+  
+  
+  .timer {
+    font-size: 18px;
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  
+  #container strong {
+    font-size: 20px;
+    line-height: 26px;
+  }
+  
+  #container p {
+    font-size: 16px;
+    line-height: 22px;
+  
+    color: #8c8c8c;
+  
+    margin: 0;
+  }
+  
+  
+  

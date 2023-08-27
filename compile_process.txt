@@ -25,7 +25,7 @@ sudo ./gradlew assembleDebug
 # Antes disso crie um arquivo com o nome 'local.properties'
 # adicione a linha:
 # sdk.dir=/SEU/CAMINHO/QUE/FOI/INSTALADO/O/SDK
-# No meu cado sdk.dir=/root/Android/Sdk
+# No meu cado sdk.dir=/home/pg4/Android/Sdk
 # Após isso salve o arquivo e feche
 # e de o mesmo comando acima
 ###################
