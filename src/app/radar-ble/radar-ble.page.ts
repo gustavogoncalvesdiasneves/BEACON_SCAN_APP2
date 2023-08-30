@@ -1,4 +1,4 @@
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit, ViewChild, ElementRef, AfterViewInit, ViewChildren, TemplateRef, numberAttribute } from '@angular/core';
 import { NavController } from '@ionic/angular';
 
 import { BluetoothSerial } from '@awesome-cordova-plugins/bluetooth-serial/ngx';
@@ -7,6 +7,7 @@ import { AlertController } from '@ionic/angular';
 import { BLE } from '@ionic-native/ble/ngx';
 import { BluetoothLE, InitParams, Device, ScanStatus } from '@awesome-cordova-plugins/bluetooth-le/ngx';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { filter, identity } from 'rxjs';
 
 @Component({
   selector: 'app-radar-ble',
@@ -18,6 +19,7 @@ export class RadarBlePage {
   activateBluetoothError: string = '';
   scanDevicesError: string = '';
   devices: any[] = [];
+  devices_mac_filter: any[] = [];
   rssiValue: number = 0; // Inicializa com um valor padrão
 
 
@@ -32,8 +34,92 @@ export class RadarBlePage {
     
     }
 
+    filterMacAddr(){
+      const alert = this.alertContrl.create({
+        inputs:[
+        {
+          placeholder: 'MAC ID',
+          attributes: {
+            maxlength: 17,
+          },
+  
+        }],
+        buttons: [
+          {
+            text: "Cancelar",
+            role: "cancel",
+            cssClass: "secondary",
+            handler: () => {
+              console.log("confirm cancel")
+            }
+          },
+          {
+            text: "Salvar",
+            handler: () => {
+              
+              //()=> {
+                //this.listarTarefa();
+              //}
+            }
+            }]
+        });
+      }
+    
+    @ViewChild('mylbl', { read: ElementRef }) mylbl!: ElementRef;
+
+    @ViewChild('newContainer', { read: ElementRef }) newContainer!: ElementRef;
+
+    @ViewChild('newItem', { static: true }) newItem!: TemplateRef<any>;
+
+    @ViewChild('itemValor', { read: ElementRef }) itemValor!: TemplateRef<any>;
+
+    crate_mac_input() {
+      const newItem = this.newItem.createEmbeddedView(null).rootNodes[0];
+      newItem.querySelector('ion-input').value = '';
+      
+      this.newContainer.nativeElement.appendChild(newItem);
+    }
+
+    mac_validate(itemValor: any) {
+      //const teste_array = [];
+      //teste_array.push({name: "ble", rssi: -51, id: '0A.00.27.00.00.08'})
+      const macAddressRegex = /^([0-9A-Fa-f]{2}[:.]){5}([0-9A-Fa-f]{2})$/;
+      //filterCondition = (item: any) => item.category === 'Category A';
+      console.log(this.devices)
+      if (macAddressRegex.test(itemValor) ) {
+        console.log("Valid MAC address");
+        const foundItem = this.devices.find(mac => mac.id === itemValor); //variavel que armazena o item achado
+      
+          if (foundItem) {
+            console.log("MAC é valido e existe no teste_array:", foundItem);
+            console.log(this.mylbl)
+    
+            // Adiciona a nova label ao container
+              
+            const newItem = this.newItem.createEmbeddedView(null).rootNodes[0];
+            newItem.querySelector('ion-input').value = '';
+          
+            this.newContainer.nativeElement.appendChild(newItem);
+
+            
+            this.devices.push(itemValor);
+            console.log(this.devices)
+
+          } else {
+            console.log("MAC não é valido e não existe no array");
+          }
+        }
+      }
+
+      
+  filterDeviceMacAddr(itemValor: any){
+    //6 pares de bites
+    this.devices = [];
+    this.devices = [itemValor];
+    console.log(this.devices)
+  }
   // Função para calcular a posição de um dispositivo no círculo baseado no RSSI
-  getDevicePosition(rssi: number): string {
+  getDevicePosition(rssi: number, device_mac: any): string {
     const angle = (rssi + 100) * 1.8; 
     const x = 150 + 100 * Math.cos((angle * Math.PI) / 180);
     const y = 150 + 100 * Math.sin((angle * Math.PI) / 180);

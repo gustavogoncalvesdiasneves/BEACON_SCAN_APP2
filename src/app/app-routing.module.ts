@@ -19,7 +19,11 @@ const routes: Routes = [
   {
     path: 'radar-ble',
     loadChildren: () => import('./radar-ble/radar-ble.module').then( m => m.RadarBlePageModule)
+  },  {
+    path: 'config',
+    loadChildren: () => import('./config/config.module').then( m => m.ConfigPageModule)
   },
+
 ];
 
 @NgModule({
