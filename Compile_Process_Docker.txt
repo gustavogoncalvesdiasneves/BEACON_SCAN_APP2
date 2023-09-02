@@ -1,0 +1,19 @@
+## Passar uma pasta para o docker:
+
+docker run -v C:\\Users\\engen\\BEACON_APP\\BEACON_SCAN_APP2:/home ionic-gradle
+
+or 
+
+docker run -it -v /c/Users/engen/BEACON_APP/BEACON_SCAN_APP2:/home ionic-gradle /bin/bash
+
+## Acesar o Bash do Docker:
+
+docker run -it ionic-gradle /bin/bash
+
+## Buildar a imagem:
+
+docker build -t ionic-gradle .  
+
+##############
+# sdk.dir=/usr/local/android-sdk
+##############

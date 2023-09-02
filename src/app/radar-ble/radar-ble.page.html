@@ -27,34 +27,45 @@
     
     <ion-list scrollY="true" #newContainer >
       
-      
+
       
     </ion-list>
   </div>
 
   <h2>Função activateBluetooth</h2>
-  <div *ngFor="let device of devices">
-    <h3>{{ device }}</h3>
+  <div *ngFor="let device of devices"> <!--*ngFor="let device of devices"-->
+    <h3>{{ device.name }}</h3>
     <p>{{ device.id }}</p>
+    <p>{{ device.rssi }}</p>
   </div>
 
   <ng-template #newItem>
     <ion-item #mylbl color="secondary" class="input-custom" >
       <ion-input #itemValor id="itemValor" label=" MAC " maxlength="17" placeholder="0A.0B.2C.0D.0E.8F" ></ion-input>
+      <ion-button (click)="addDevice()" size="large" color="tertiary"  >Selecionar Device</ion-button>
+      
       <ion-button (click)="mac_validate(itemValor.value)" size="large" color="tertiary"  >+</ion-button>
+      
     </ion-item>
   </ng-template>
-
-
-
-  <!--
-    <div class="round_map">
+  
+  <div class="round_map">
     <div class="circle">
-      <div class="device" *ngFor="let device of devices" [style.transform]="getDevicePosition(device.rssi, device.id)">
-        {{ device.name }}
-      </div>
+      <ng-container *ngIf="devices_filter.length > 0">
+        <div class="device" [style.transform]="getDevicePosition(device.rssi, device.id)" *ngFor="let device of devices_filter">
+          {{ device.name }}
+        </div>
+      </ng-container>
+      <ng-container *ngIf="devices_filter.length === 0">
+        <div class="device" [style.transform]="getDevicePosition(device.rssi, device.id)" *ngFor="let device of devices">
+          {{ device.name }}
+        </div>
+      </ng-container>
     </div>
   </div>
+  
+
+  <!--
 0A.00.27.00.00.08
   -->
 

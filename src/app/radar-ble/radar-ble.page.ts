@@ -19,8 +19,11 @@ export class RadarBlePage {
   activateBluetoothError: string = '';
   scanDevicesError: string = '';
   devices: any[] = [];
-  devices_mac_filter: any[] = [];
+  devices_filter: any[] = [];
   rssiValue: number = 0; // Inicializa com um valor padrão
+  selectedDevice: any = null; // Inicialmente nulo
+  //deviceIds: string[]=[];
+  deviceIds: any[] = []; //this.devices.map(device => device.id);
 
 
   constructor(
@@ -34,36 +37,48 @@ export class RadarBlePage {
     
     }
 
-    filterMacAddr(){
-      const alert = this.alertContrl.create({
-        inputs:[
-        {
-          placeholder: 'MAC ID',
-          attributes: {
-            maxlength: 17,
-          },
-  
-        }],
+    async addDevice() {
+      const alert = await this.alertContrl.create({
+        header: 'Selecione um Dispositivo',
+        inputs: this.devices.map(device => ({
+          type: 'radio',
+          label: device.id,
+          value: device,
+        })),
         buttons: [
           {
-            text: "Cancelar",
-            role: "cancel",
-            cssClass: "secondary",
-            handler: () => {
-              console.log("confirm cancel")
-            }
+            text: 'Cancelar',
+            role: 'cancel',
           },
           {
-            text: "Salvar",
-            handler: () => {
-              
-              //()=> {
-                //this.listarTarefa();
-              //}
-            }
-            }]
-        });
-      }
+            text: 'Adicionar',
+            handler: (selectedDevice:any) => {
+              if (selectedDevice) {
+                // Verifique se o dispositivo já não está na lista de filtros
+                const existsInFilter = this.devices_filter.some(device => device.id === selectedDevice.id);
+  
+                if (!existsInFilter) {
+                  // Adicione o dispositivo selecionado à lista de filtros
+                  this.devices_filter.push(selectedDevice);
+  
+                  // Encontre o índice do dispositivo na lista de IDs
+                  const index = this.devices.findIndex(device => device.id === selectedDevice.id);
+  
+                  // Se o dispositivo estiver na lista de IDs, remova-o pelo índice
+                  if (index !== -1) {
+                    this.devices.splice(index, 1);
+                  }
+                }
+              }
+            },
+          },
+        ],
+      });
+  
+      await alert.present();
+    }
+  
+    
     
     @ViewChild('mylbl', { read: ElementRef }) mylbl!: ElementRef;
 
@@ -74,6 +89,7 @@ export class RadarBlePage {
     @ViewChild('itemValor', { read: ElementRef }) itemValor!: TemplateRef<any>;
 
     crate_mac_input() {
+      
       const newItem = this.newItem.createEmbeddedView(null).rootNodes[0];
       newItem.querySelector('ion-input').value = '';
       
@@ -81,9 +97,12 @@ export class RadarBlePage {
     }
 
     mac_validate(itemValor: any) {
+      //deviceIds: string[] = this.devices.map(device => device.id);
+
       //const teste_array = [];
       //teste_array.push({name: "ble", rssi: -51, id: '0A.00.27.00.00.08'})
-      const macAddressRegex = /^([0-9A-Fa-f]{2}[:.]){5}([0-9A-Fa-f]{2})$/;
+      const macAddressRegex =  /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
+      //     /^([0-9A-Fa-f]{2}[:.]){5}([0-9A-Fa-f]{2})$/;
       //filterCondition = (item: any) => item.category === 'Category A';
       console.log(this.devices)
       if (macAddressRegex.test(itemValor) ) {
@@ -102,12 +121,31 @@ export class RadarBlePage {
             this.newContainer.nativeElement.appendChild(newItem);
 
             
-            this.devices.push(itemValor);
-            console.log(this.devices)
+            this.devices_filter.push(foundItem);
+            console.log(this.devices_filter)
 
           } else {
             console.log("MAC não é valido e não existe no array");
           }
+        }
+      }
+
+      filterDevices() {
+        if (this.selectedDevice) {
+          //this.deviceIds.push(this.devices.map(device => device.id))
+          const device_filter = this.devices.filter(device => device.id === this.selectedDevice);
+           // Adiciona a nova label ao container
+              
+           const newItem = this.newItem.createEmbeddedView(null).rootNodes[0];
+           newItem.querySelector('ion-input').value = '';
+         
+           this.newContainer.nativeElement.appendChild(newItem);
+
+           this.devices_filter.push(device_filter);
+            console.log(this.devices_filter)
+
+        } else {
+          this.devices_filter = this.devices.slice(); // Se nenhum dispositivo for selecionado, copie todos os dispositivos para a lista filtrada.
         }
       }
 
@@ -136,6 +174,9 @@ export class RadarBlePage {
   }
   
     activateBluetooth() {
+      //this.deviceIds.push({name: 'Device1',id: '0A.00.27.00.00.08', rssi: -52})
+      //this.deviceIds.push({name: 'Device2', id: '0A.00.27.00.00.02', rssi: -32})
+      console.log(this.deviceIds)
       this.bluetoothSerial.isEnabled().then(response => {
         this.isEnabled('IsOn');
       }).catch(error => {
@@ -177,9 +218,9 @@ export class RadarBlePage {
     this.ble.scan([], 5).subscribe(device => {
       console.log(device);
       this.devices.push(device);
+      //this.updateDeviceIds(); // Atualiza a lista de IDs após adicionar um dispositivo
     });
   }
-
 
   deviceConnected(){
     this.bluetoothSerial.subscribe('/n').subscribe(success =>{
