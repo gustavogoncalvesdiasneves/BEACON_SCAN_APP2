@@ -8,12 +8,17 @@ import { BLE } from '@ionic-native/ble/ngx';
 import { BluetoothLE, InitParams, Device, ScanStatus } from '@awesome-cordova-plugins/bluetooth-le/ngx';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { filter, identity } from 'rxjs';
+import { SensorService } from '../sensor.service';
+import { DeviceMotion, DeviceMotionAccelerationData } from '@ionic-native/device-motion/ngx';
+
+
 
 @Component({
   selector: 'app-radar-ble',
   templateUrl: './radar-ble.page.html',
   styleUrls: ['./radar-ble.page.scss'],
 })
+
 export class RadarBlePage {
 
   activateBluetoothError: string = '';
@@ -24,6 +29,11 @@ export class RadarBlePage {
   selectedDevice: any = null; // Inicialmente nulo
   //deviceIds: string[]=[];
   deviceIds: any[] = []; //this.devices.map(device => device.id);
+  //arrowRotation: number = 0; // Defina um valor inicial adequado
+  arrowRotation = '0deg';
+  accelerationX!: number;
+  accelerationY!: number;
+  accelerationZ!: number;
 
 
   constructor(
@@ -32,10 +42,44 @@ export class RadarBlePage {
     private alertContrl : AlertController,
     //private bluetoothLE : BluetoothLE,
     private ble: BLE,
-    private geolocation: Geolocation
+    //private geolocation: Geolocation,
+    private sensorService: SensorService,
+    private deviceMotion: DeviceMotion
     ) {
-    
+      //this.sensorService.startGyroscope((orientation: any) => {
+        // Atualize a rotação da seta com base na orientação do giroscópio
+      //  this.arrowRotation = `${orientation.z}deg`;
+      //});
+
+      this.deviceMotion.getCurrentAcceleration().then(
+        (acceleration: DeviceMotionAccelerationData) => {
+          console.log('Acceleration X: ' + acceleration.x);
+          console.log('Acceleration Y: ' + acceleration.y);
+          console.log('Acceleration Z: ' + acceleration.z);
+        },
+        (error) => {
+          console.log('Erro ao obter dados de aceleração: ' + error);
+        });
+
+        
     }
+
+    iniciarMonitoramento() {
+      const subscription = this.deviceMotion.watchAcceleration().subscribe(
+        (acceleration: DeviceMotionAccelerationData) => {
+          this.accelerationX = acceleration.x;
+          this.accelerationY = acceleration.y;
+          this.accelerationZ = acceleration.z;
+        },
+        (error) => {
+          console.log('Erro ao monitorar aceleração: ' + error);
+        }
+      );
+  
+      // Para cancelar a inscrição quando não for mais necessária
+      subscription.unsubscribe();
+    }
+    
 
     async addDevice() {
       const alert = await this.alertContrl.create({
@@ -94,11 +138,17 @@ export class RadarBlePage {
       newItem.querySelector('ion-input').value = '';
       
       this.newContainer.nativeElement.appendChild(newItem);
+      //Teste position:
+      this.devices.push({name: 'myPos', id: '00.00.00.00.00.0F', rssi: 0 })
+
+      //Teste dispositivo 2
+      //this.devices.push({name: 'Device', id: '00.00.00.00.00.2F', rssi: -90 })
+      console.log(this.devices)
     }
 
     mac_validate(itemValor: any) {
       //deviceIds: string[] = this.devices.map(device => device.id);
-
+      
       //const teste_array = [];
       //teste_array.push({name: "ble", rssi: -51, id: '0A.00.27.00.00.08'})
       const macAddressRegex =  /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
@@ -149,20 +199,34 @@ export class RadarBlePage {
         }
       }
 
+      getDevicePosition(rssi: number, device_mac: any): string {
+        const center = 150; // Posição central do círculo
+        const maxDistance = 100; // Distância máxima do centro
       
-  filterDeviceMacAddr(itemValor: any){
-    //6 pares de bites
-    this.devices = [];
-    this.devices = [itemValor];
-    console.log(this.devices)
-  }
+        if (rssi === 0) {
+          return `translate(${center}px, ${center}px)`;
+        }
+      
+        // Calcule a distância em relação ao centro com base no valor absoluto do RSSI
+        const distance = (Math.abs(rssi) / 100) * maxDistance;
+      
+        // Calcule o ângulo com base no RSSI
+        const angle = (rssi > 0 ? 1 : -1) * Math.acos(distance / maxDistance) * (180 / Math.PI);
+      
+        const x = center + distance * Math.cos((angle * Math.PI) / 180);
+        const y = center + distance * Math.sin((angle * Math.PI) / 180);
+        return `translate(${x}px, ${y}px)`;
+      }
+      
+      
+      
   // Função para calcular a posição de um dispositivo no círculo baseado no RSSI
-  getDevicePosition(rssi: number, device_mac: any): string {
-    const angle = (rssi + 100) * 1.8; 
-    const x = 150 + 100 * Math.cos((angle * Math.PI) / 180);
-    const y = 150 + 100 * Math.sin((angle * Math.PI) / 180);
-    return `translate(${x}px, ${y}px)`;
-  }
+  //getDevicePosition(rssi: number, device_mac: any): string {
+  //  const angle = (rssi + 100) * 1.8; 
+  //  const x = 150 + 100 * Math.cos((angle * Math.PI) / 180);
+  //  const y = 150 + 100 * Math.sin((angle * Math.PI) / 180);
+  //  return `translate(${x}px, ${y}px)`;
+  //}
 
   // Função para simular a detecção de dispositivos BLE próximos
   simulateScan() {

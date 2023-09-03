@@ -23,6 +23,7 @@
 
   <div id="divExterna" class="painel-orc">
     <ion-button (click)="crate_mac_input()" >Filtro por MAC</ion-button>
+    <ion-button (click)="iniciarMonitoramento()">Iniciar Monitoramento</ion-button>
     
     
     <ion-list scrollY="true" #newContainer >
@@ -34,7 +35,7 @@
 
   <h2>Função activateBluetooth</h2>
   <div *ngFor="let device of devices"> <!--*ngFor="let device of devices"-->
-    <h3>{{ device.name }}</h3>
+    <h3>{{ device.name || 'UnamedDevice' }}</h3>
     <p>{{ device.id }}</p>
     <p>{{ device.rssi }}</p>
   </div>
@@ -52,13 +53,17 @@
   <div class="round_map">
     <div class="circle">
       <ng-container *ngIf="devices_filter.length > 0">
+        
         <div class="device" [style.transform]="getDevicePosition(device.rssi, device.id)" *ngFor="let device of devices_filter">
-          {{ device.name }}
+          <div class="arrow" [style.transform]="'rotate(' + arrowRotation + 'deg)'" *ngIf="device.name === 'myPos'"></div>
+          {{ device.name || 'UnamedDevice' }}
         </div>
       </ng-container>
       <ng-container *ngIf="devices_filter.length === 0">
+        
         <div class="device" [style.transform]="getDevicePosition(device.rssi, device.id)" *ngFor="let device of devices">
-          {{ device.name }}
+          <div class="arrow" [style.transform]="'rotate(' + arrowRotation + 'deg)'" *ngIf="device.name === 'myPos'"></div>
+          {{ device.name || 'UnamedDevice' }}
         </div>
       </ng-container>
     </div>
@@ -68,6 +73,12 @@
   <!--
 0A.00.27.00.00.08
   -->
+
+  <div *ngIf="accelerationX !== undefined">
+    <p>Aceleração X: {{ accelerationX }}</p>
+    <p>Aceleração Y: {{ accelerationY }}</p>
+    <p>Aceleração Z: {{ accelerationZ }}</p>
+  </div>
 
   <p>{{ activateBluetoothError }}</p>
   <p>{{ scanDevicesError }}</p>

@@ -12,12 +12,15 @@ import { BluetoothLE } from '@awesome-cordova-plugins/bluetooth-le/ngx';
 
 import { BLE } from '@ionic-native/ble/ngx';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+//import { Gyroscope, GyroscopeOrientation, GyroscopeOptions } from '@ionic-native/sensors/ngx';
+import { Injectable } from '@angular/core';
+import { DeviceMotion, DeviceMotionAccelerationData } from '@ionic-native/device-motion/ngx';
 
 
 @NgModule({
   declarations: [AppComponent],
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, Geolocation, BLE, BluetoothSerial, BluetoothLE,
+  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, DeviceMotion, Injectable, Geolocation, BLE, BluetoothSerial, BluetoothLE,
   ],
   bootstrap: [AppComponent],
 })
