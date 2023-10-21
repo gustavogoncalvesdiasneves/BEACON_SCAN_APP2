@@ -24,6 +24,7 @@
   <div id="divExterna" class="painel-orc">
     <ion-button (click)="crate_mac_input()" >Filtro por MAC</ion-button>
     <ion-button (click)="iniciarMonitoramento()">Iniciar Monitoramento</ion-button>
+    <ion-button (click)="startGyroscope()">printCurrentPosition</ion-button>
     
     
     <ion-list scrollY="true" #newContainer >
@@ -38,7 +39,18 @@
     <h3>{{ device.name || 'UnamedDevice' }}</h3>
     <p>{{ device.id }}</p>
     <p>{{ device.rssi }}</p>
+    <p>{{ device.advertising }} </p> <!--click()="extract_adversting_device(device)"-->
+    <p>{{ device.advertisingData }}</p>
+    <!-- <p>{{ device.advertisingDataParsed }}</p> -->
+    
   </div>
+
+  <!-- <div>
+    DEVICE ADVERTASING:
+
+    {{ device_advertising }}
+
+  </div> -->
 
   <ng-template #newItem>
     <ion-item #mylbl color="secondary" class="input-custom" >
@@ -55,14 +67,14 @@
       <ng-container *ngIf="devices_filter.length > 0">
         
         <div class="device" [style.transform]="getDevicePosition(device.rssi, device.id)" *ngFor="let device of devices_filter">
-          <div class="arrow" [style.transform]="'rotate(' + arrowRotation + 'deg)'" *ngIf="device.name === 'myPos'"></div>
+          <!--<div class="arrow" #arrow [style.transform]="'rotate(' + this.arrowRotation + 'deg)'" *ngIf="device.name === 'myPos'"></div>-->
           {{ device.name || 'UnamedDevice' }}
         </div>
       </ng-container>
       <ng-container *ngIf="devices_filter.length === 0">
         
         <div class="device" [style.transform]="getDevicePosition(device.rssi, device.id)" *ngFor="let device of devices">
-          <div class="arrow" [style.transform]="'rotate(' + arrowRotation + 'deg)'" *ngIf="device.name === 'myPos'"></div>
+          <!--<div class="arrow" #arrow [style.transform]="'rotate(' + this.arrowRotation + 'deg)'" *ngIf="device.name === 'myPos'"></div>-->
           {{ device.name || 'UnamedDevice' }}
         </div>
       </ng-container>
@@ -79,6 +91,18 @@
     <p>Aceleração Y: {{ accelerationY }}</p>
     <p>Aceleração Z: {{ accelerationZ }}</p>
   </div>
+
+  <div *ngIf="latitude_coords !== undefined">
+    <p>Longitude: {{ longitude_coords }}</p>
+    <p>Latitude: {{ latitude_coords }}</p>
+    <p>Gyroscopy : {{ cordinates_gyroscopy || 'undefined' }}</p>
+    
+  </div>
+  <div *ngIf="latitude_coords !== undefined">
+    <p>Gyroscopy : {{ cordinates_gyroscopy || 'undefined' }}</p>
+
+  </div>
+  
 
   <p>{{ activateBluetoothError }}</p>
   <p>{{ scanDevicesError }}</p>

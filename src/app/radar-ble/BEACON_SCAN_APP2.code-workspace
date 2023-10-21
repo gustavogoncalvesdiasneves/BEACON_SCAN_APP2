@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		},
+		{
+			"name": "ESP32",
+			"path": "../../../../../OneDrive/Documentos/PlatformIO/Projects/ESP32"
+		}
+	],
+	"settings": {}
+}

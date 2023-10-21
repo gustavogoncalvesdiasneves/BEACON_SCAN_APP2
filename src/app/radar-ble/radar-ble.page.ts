@@ -6,10 +6,12 @@ import { AlertController } from '@ionic/angular';
 //import { error } from 'console';
 import { BLE } from '@ionic-native/ble/ngx';
 import { BluetoothLE, InitParams, Device, ScanStatus } from '@awesome-cordova-plugins/bluetooth-le/ngx';
-import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { Geolocation } from '@capacitor/geolocation';
 import { filter, identity } from 'rxjs';
 import { SensorService } from '../sensor.service';
 import { DeviceMotion, DeviceMotionAccelerationData } from '@ionic-native/device-motion/ngx';
+//import { Gyroscope } from 'ionic-native';
+import { Gyroscope, GyroscopeOrientation, GyroscopeOptions } from '@ionic-native/gyroscope/ngx';
 
 
 
@@ -30,10 +32,17 @@ export class RadarBlePage {
   //deviceIds: string[]=[];
   deviceIds: any[] = []; //this.devices.map(device => device.id);
   //arrowRotation: number = 0; // Defina um valor inicial adequado
-  arrowRotation = '0deg';
+  //arrowRotation = '0deg';
   accelerationX!: number;
   accelerationY!: number;
   accelerationZ!: number;
+  latitude_coords!: any;
+  longitude_coords!: any;
+  arrowRotation!: number; // Initialize with an initial rotation angle
+  cordinates_gyroscopy!: any;
+
+  advertisingDataParsed: any;
+  device_advertising: any;
 
 
   constructor(
@@ -42,14 +51,17 @@ export class RadarBlePage {
     private alertContrl : AlertController,
     //private bluetoothLE : BluetoothLE,
     private ble: BLE,
-    //private geolocation: Geolocation,
+    private geolocation: Geolocation,
     private sensorService: SensorService,
-    private deviceMotion: DeviceMotion
-    ) {
+    private deviceMotion: DeviceMotion,
+    private gyroscope: Gyroscope
+    ) { //this.startGyroscope();
       //this.sensorService.startGyroscope((orientation: any) => {
         // Atualize a rotação da seta com base na orientação do giroscópio
       //  this.arrowRotation = `${orientation.z}deg`;
       //});
+
+      
 
       this.deviceMotion.getCurrentAcceleration().then(
         (acceleration: DeviceMotionAccelerationData) => {
@@ -63,6 +75,70 @@ export class RadarBlePage {
 
         
     }
+
+
+    
+    startGyroscope() {
+      const options: GyroscopeOptions = {
+        frequency: 1000, // Update every 1 second (adjust as needed)
+      };
+  
+      const subscription = this.gyroscope.watch(options).subscribe(
+        (orientation: GyroscopeOrientation) => {
+          this.cordinates_gyroscopy = orientation
+          console.log('Gyroscope orientation:', orientation);
+          // Use the gyroscope data as needed
+        },
+        (error) => {
+          this.cordinates_gyroscopy = error
+          console.error('Gyroscope error:', error);
+        }
+      );
+  
+      // To stop the gyroscope subscription when you're done:
+      // subscription.unsubscribe();
+    }
+    
+
+    printCurrentPosition = async () => {
+      try {
+        const coordinates = await Geolocation.getCurrentPosition();
+        this.latitude_coords = coordinates.coords.latitude;
+        this.longitude_coords = coordinates.coords.longitude;
+        console.log('Latitude: ' + this.latitude_coords);
+        console.log('Longitude: ' + this.longitude_coords);
+    
+        // Listen to the deviceorientation event to get the compass heading
+        window.addEventListener('deviceorientation', (event) => {
+          const heading = event.alpha; // Extract the compass heading from the event
+          
+          console.log(heading)
+    
+          if (heading !== null) {
+            // Calculate the rotation angle based on the heading
+            this.arrowRotation = 360 - heading; // Adjust as needed
+          }
+        });
+      } catch (error: any) {
+        console.error('Error ao mostrar as coordenadas: ' + error.message);
+      }
+    };
+    
+    updateArrowDirection = (heading: number) => {
+      console.log("Entrou na Função UpdateArrowDirection")
+      // Inside your component class
+      
+
+      // Inside the deviceorientation event listener
+      window.addEventListener('deviceorientation', (event) => {
+        const heading = event.alpha; // Extract the compass heading from the event 
+
+        if (heading !== null) {
+          // Calculate the rotation angle based on the heading
+          this.arrowRotation = 360 - heading; // Adjust as needed
+        }
+      })};
+    
 
     iniciarMonitoramento() {
       const subscription = this.deviceMotion.watchAcceleration().subscribe(
@@ -279,12 +355,46 @@ export class RadarBlePage {
 
   scanForDevices() {
     this.devices = []; // Limpa a lista de dispositivos antes de escanear novamente
-    this.ble.scan([], 5).subscribe(device => {
-      console.log(device);
-      this.devices.push(device);
-      //this.updateDeviceIds(); // Atualiza a lista de IDs após adicionar um dispositivo
-    });
+    if (this.devices_filter.length >= 1){
+      this.ble.scan(this.devices_filter, 5).subscribe(device => {
+        // console.log(device);
+        this.devices.push(this.devices_filter);
+        console.log("if (this.devices_filter.length >= 1)")
+        //this.updateDeviceIds(); // Atualiza a lista de IDs após adicionar um dispositivo
+      });
+    } else {
+      this.ble.scan([], 5).subscribe(device => {
+        console.log(device);
+        const convertedData = this.convertAdvertisingData(device.advertising);
+        // const dataNumbersParse = this.advertisingDataParsed
+        const convertedDevice = {
+          name: device.name,
+          id: device.id,
+          rssi: device.rssi,
+
+          advertisingData: convertedData,
+          // advertisingDataParsed: dataNumbersParse,
+
+        };
+        this.devices.push(convertedDevice);
+        console.log("else scanForDevices()")
+        //this.updateDeviceIds(); // Atualiza a lista de IDs após adicionar um dispositivo
+      });
+    } 
   }
+
+  convertAdvertisingData(data: ArrayBuffer): string {
+    const dataView = new DataView(data);
+    this.device_advertising = Array.from(new Uint8Array(dataView.buffer)).toString();
+    // this.parseAdvertisingData(this.device_advertising);
+    return Array.from(new Uint8Array(dataView.buffer)).toString();
+  }
+  
+  // parseAdvertisingData(dataString: string): number[] {
+  //   const dataNumbers = dataString.split(',').map(Number);
+  //   this.advertisingDataParsed = dataNumbers;
+  //   return this.advertisingDataParsed;
+  // }
 
   deviceConnected(){
     this.bluetoothSerial.subscribe('/n').subscribe(success =>{
