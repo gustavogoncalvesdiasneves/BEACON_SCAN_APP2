@@ -11,7 +11,7 @@ import { filter, identity } from 'rxjs';
 import { SensorService } from '../sensor.service';
 import { DeviceMotion, DeviceMotionAccelerationData } from '@ionic-native/device-motion/ngx';
 //import { Gyroscope } from 'ionic-native';
-import { Gyroscope, GyroscopeOrientation, GyroscopeOptions } from '@ionic-native/gyroscope/ngx';
+// import { Gyroscope, GyroscopeOrientation, GyroscopeOptions } from '@ionic-native/gyroscope/ngx';
 
 
 
@@ -51,10 +51,10 @@ export class RadarBlePage {
     private alertContrl : AlertController,
     //private bluetoothLE : BluetoothLE,
     private ble: BLE,
-    private geolocation: Geolocation,
-    private sensorService: SensorService,
-    private deviceMotion: DeviceMotion,
-    private gyroscope: Gyroscope
+    // private geolocation: Geolocation,
+    // private sensorService: SensorService,
+    // private deviceMotion: DeviceMotion,
+    // private gyroscope: Gyroscope
     ) { //this.startGyroscope();
       //this.sensorService.startGyroscope((orientation: any) => {
         // Atualize a rotação da seta com base na orientação do giroscópio
@@ -63,98 +63,98 @@ export class RadarBlePage {
 
       
 
-      this.deviceMotion.getCurrentAcceleration().then(
-        (acceleration: DeviceMotionAccelerationData) => {
-          console.log('Acceleration X: ' + acceleration.x);
-          console.log('Acceleration Y: ' + acceleration.y);
-          console.log('Acceleration Z: ' + acceleration.z);
-        },
-        (error) => {
-          console.log('Erro ao obter dados de aceleração: ' + error);
-        });
+      // this.deviceMotion.getCurrentAcceleration().then(
+      //   (acceleration: DeviceMotionAccelerationData) => {
+      //     console.log('Acceleration X: ' + acceleration.x);
+      //     console.log('Acceleration Y: ' + acceleration.y);
+      //     console.log('Acceleration Z: ' + acceleration.z);
+      //   },
+      //   (error) => {
+      //     console.log('Erro ao obter dados de aceleração: ' + error);
+      //   });
 
         
     }
 
 
     
-    startGyroscope() {
-      const options: GyroscopeOptions = {
-        frequency: 1000, // Update every 1 second (adjust as needed)
-      };
+    // startGyroscope() {
+    //   const options: GyroscopeOptions = {
+    //     frequency: 1000, // Update every 1 second (adjust as needed)
+    //   };
   
-      const subscription = this.gyroscope.watch(options).subscribe(
-        (orientation: GyroscopeOrientation) => {
-          this.cordinates_gyroscopy = orientation
-          console.log('Gyroscope orientation:', orientation);
-          // Use the gyroscope data as needed
-        },
-        (error) => {
-          this.cordinates_gyroscopy = error
-          console.error('Gyroscope error:', error);
-        }
-      );
+    //   const subscription = this.gyroscope.watch(options).subscribe(
+    //     (orientation: GyroscopeOrientation) => {
+    //       this.cordinates_gyroscopy = orientation
+    //       console.log('Gyroscope orientation:', orientation);
+    //       // Use the gyroscope data as needed
+    //     },
+    //     (error) => {
+    //       this.cordinates_gyroscopy = error
+    //       console.error('Gyroscope error:', error);
+    //     }
+    //   );
   
       // To stop the gyroscope subscription when you're done:
       // subscription.unsubscribe();
-    }
+    // }
     
 
-    printCurrentPosition = async () => {
-      try {
-        const coordinates = await Geolocation.getCurrentPosition();
-        this.latitude_coords = coordinates.coords.latitude;
-        this.longitude_coords = coordinates.coords.longitude;
-        console.log('Latitude: ' + this.latitude_coords);
-        console.log('Longitude: ' + this.longitude_coords);
+    // printCurrentPosition = async () => {
+    //   try {
+    //     const coordinates = await Geolocation.getCurrentPosition();
+    //     this.latitude_coords = coordinates.coords.latitude;
+    //     this.longitude_coords = coordinates.coords.longitude;
+    //     console.log('Latitude: ' + this.latitude_coords);
+    //     console.log('Longitude: ' + this.longitude_coords);
     
-        // Listen to the deviceorientation event to get the compass heading
-        window.addEventListener('deviceorientation', (event) => {
-          const heading = event.alpha; // Extract the compass heading from the event
+    //     // Listen to the deviceorientation event to get the compass heading
+    //     window.addEventListener('deviceorientation', (event) => {
+    //       const heading = event.alpha; // Extract the compass heading from the event
           
-          console.log(heading)
+    //       console.log(heading)
     
-          if (heading !== null) {
-            // Calculate the rotation angle based on the heading
-            this.arrowRotation = 360 - heading; // Adjust as needed
-          }
-        });
-      } catch (error: any) {
-        console.error('Error ao mostrar as coordenadas: ' + error.message);
-      }
-    };
+    //       if (heading !== null) {
+    //         // Calculate the rotation angle based on the heading
+    //         this.arrowRotation = 360 - heading; // Adjust as needed
+    //       }
+    //     });
+    //   } catch (error: any) {
+    //     console.error('Error ao mostrar as coordenadas: ' + error.message);
+    //   }
+    // };
     
-    updateArrowDirection = (heading: number) => {
-      console.log("Entrou na Função UpdateArrowDirection")
-      // Inside your component class
+    // updateArrowDirection = (heading: number) => {
+    //   console.log("Entrou na Função UpdateArrowDirection")
+    //   // Inside your component class
       
 
-      // Inside the deviceorientation event listener
-      window.addEventListener('deviceorientation', (event) => {
-        const heading = event.alpha; // Extract the compass heading from the event 
+    //   // Inside the deviceorientation event listener
+    //   window.addEventListener('deviceorientation', (event) => {
+    //     const heading = event.alpha; // Extract the compass heading from the event 
 
-        if (heading !== null) {
-          // Calculate the rotation angle based on the heading
-          this.arrowRotation = 360 - heading; // Adjust as needed
-        }
-      })};
+    //     if (heading !== null) {
+    //       // Calculate the rotation angle based on the heading
+    //       this.arrowRotation = 360 - heading; // Adjust as needed
+    //     }
+    //   })};
     
 
-    iniciarMonitoramento() {
-      const subscription = this.deviceMotion.watchAcceleration().subscribe(
-        (acceleration: DeviceMotionAccelerationData) => {
-          this.accelerationX = acceleration.x;
-          this.accelerationY = acceleration.y;
-          this.accelerationZ = acceleration.z;
-        },
-        (error) => {
-          console.log('Erro ao monitorar aceleração: ' + error);
-        }
-      );
+    // iniciarMonitoramento() {
+    //   const subscription = this.deviceMotion.watchAcceleration().subscribe(
+    //     (acceleration: DeviceMotionAccelerationData) => {
+    //       this.accelerationX = acceleration.x;
+    //       this.accelerationY = acceleration.y;
+    //       this.accelerationZ = acceleration.z;
+    //     },
+    //     (error) => {
+    //       console.log('Erro ao monitorar aceleração: ' + error);
+    //     }
+    //   );
   
-      // Para cancelar a inscrição quando não for mais necessária
-      subscription.unsubscribe();
-    }
+    //   // Para cancelar a inscrição quando não for mais necessária
+    //   subscription.unsubscribe();
+    // }
     
 
     async addDevice() {
@@ -383,12 +383,23 @@ export class RadarBlePage {
     } 
   }
 
+  // convertAdvertisingData(data: ArrayBuffer): string {
+  //   const dataView = new DataView(data);
+  //   this.device_advertising = Array.from(new Uint8Array(dataView.buffer)).toString();
+  //   // this.parseAdvertisingData(this.device_advertising);
+  //   return Array.from(new Uint8Array(dataView.buffer)).toString();
+  // }
+
   convertAdvertisingData(data: ArrayBuffer): string {
     const dataView = new DataView(data);
-    this.device_advertising = Array.from(new Uint8Array(dataView.buffer)).toString();
-    // this.parseAdvertisingData(this.device_advertising);
-    return Array.from(new Uint8Array(dataView.buffer)).toString();
+    const bitsArray = new Uint8Array(dataView.buffer);
+    let bitsString = '';
+    for (let i = 0; i < bitsArray.length; i++) {
+      bitsString += bitsArray[i].toString(2).padStart(8, '0'); // Convert each number to an 8-bit binary string
+    }
+    return bitsString;
   }
+  
   
   // parseAdvertisingData(dataString: string): number[] {
   //   const dataNumbers = dataString.split(',').map(Number);

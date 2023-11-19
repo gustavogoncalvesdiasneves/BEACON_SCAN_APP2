@@ -23,8 +23,8 @@
 
   <div id="divExterna" class="painel-orc">
     <ion-button (click)="crate_mac_input()" >Filtro por MAC</ion-button>
-    <ion-button (click)="iniciarMonitoramento()">Iniciar Monitoramento</ion-button>
-    <ion-button (click)="startGyroscope()">printCurrentPosition</ion-button>
+    <!-- <ion-button (click)="iniciarMonitoramento()">Iniciar Monitoramento</ion-button> -->
+    <!-- <ion-button (click)="startGyroscope()">printCurrentPosition</ion-button> -->
     
     
     <ion-list scrollY="true" #newContainer >
@@ -39,7 +39,7 @@
     <h3>{{ device.name || 'UnamedDevice' }}</h3>
     <p>{{ device.id }}</p>
     <p>{{ device.rssi }}</p>
-    <p>{{ device.advertising }} </p> <!--click()="extract_adversting_device(device)"-->
+    <!-- <p>{{ device.advertising }} </p> click()="extract_adversting_device(device)" -->
     <p>{{ device.advertisingData }}</p>
     <!-- <p>{{ device.advertisingDataParsed }}</p> -->
     

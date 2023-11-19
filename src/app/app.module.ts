@@ -14,14 +14,14 @@ import { BLE } from '@ionic-native/ble/ngx';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 //import { Gyroscope, GyroscopeOrientation, GyroscopeOptions } from '@ionic-native/sensors/ngx';
 import { Injectable } from '@angular/core';
-import { DeviceMotion, DeviceMotionAccelerationData } from '@ionic-native/device-motion/ngx';
-import { Gyroscope } from '@ionic-native/gyroscope/ngx';
+// import { DeviceMotion, DeviceMotionAccelerationData } from '@ionic-native/device-motion/ngx';
+// import { Gyroscope } from '@ionic-native/gyroscope/ngx';
 
 
 @NgModule({
   declarations: [AppComponent],
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, Gyroscope ,DeviceMotion, Injectable, Geolocation, BLE, BluetoothSerial, BluetoothLE,
+  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, Injectable, Geolocation, BLE, BluetoothSerial, BluetoothLE, //Gyroscope ,DeviceMotion,
   ],
   bootstrap: [AppComponent],
 })
