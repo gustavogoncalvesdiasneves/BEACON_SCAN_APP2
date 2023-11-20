@@ -16,8 +16,10 @@
     
   -->
 
-  <ion-button (click)="activateBluetooth()">Ativar Bluetooth</ion-button>
-  <ion-button (click)="scanForDevices()">Scan for Devices</ion-button>
+  <!-- <ion-button (click)="activateBluetooth()">Ativar Bluetooth</ion-button> -->
+  <ion-button (click)="activateBluetooth2()">Ativar Bluetooth2</ion-button>
+  <!-- <ion-button (click)="scanForDevices()">Scan for Devices</ion-button> -->
+  <ion-button (click)="scanForDevices2()">Scan for Devices2</ion-button>
 
   <br><br>
 
@@ -37,13 +39,24 @@
   <h2>Função activateBluetooth</h2>
   <div *ngFor="let device of devices"> <!--*ngFor="let device of devices"-->
     <h3>{{ device.name || 'UnamedDevice' }}</h3>
-    <p>{{ device.id }}</p>
-    <p>{{ device.rssi }}</p>
+     <p>{{ device.id }}</p>
+    <p>{{ device.rssi }}</p> 
+    <ion-button (click)="readBatteryLevel(device.id)">readBatteryLevel</ion-button>
+    <ion-button (click)="readAccelerometerData(device.id)">readAccelerometerData</ion-button>
+    <ion-button (click)="connectDeviceBle(device.id)">Connect</ion-button>
+    <!-- <ion-button (click)="lightOnBle(device.id)">lightOnBle</ion-button> -->
+    <!-- <ion-button (click)="parseTemperature(device)">Temperature</ion-button> -->
     <!-- <p>{{ device.advertising }} </p> click()="extract_adversting_device(device)" -->
     <p>{{ device.advertisingData }}</p>
     <!-- <p>{{ device.advertisingDataParsed }}</p> -->
     
   </div>
+  
+  <ion-list>
+    <ion-item *ngFor="let log of logs">
+      {{ log }}
+    </ion-item>
+  </ion-list>
 
   <!-- <div>
     DEVICE ADVERTASING:

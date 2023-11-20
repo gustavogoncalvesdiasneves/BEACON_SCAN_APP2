@@ -1,0 +1,210 @@
+activateBluetooth() {
+    //this.deviceIds.push({name: 'Device1',id: '0A.00.27.00.00.08', rssi: -52})
+    //this.deviceIds.push({name: 'Device2', id: '0A.00.27.00.00.02', rssi: -32})
+    // console.log(this.deviceIds)
+    // this.bluetoothSerial.isEnabled().then(response => {
+    //   this.isEnabled('IsOn');
+    // }).catch(error => {
+    //   this.activateBluetoothError = 'Erro ao ativar o Bluetooth: ' + error.message;
+    //   this.isEnabled('IsOff');
+    // })
+    
+    this.androidPermissions.checkPermission(this.androidPermissions.PERMISSION.ACCESS_FINE_LOCATION).then(
+      result => {
+        if (result.hasPermission) {
+          // Permission is granted
+          // Your code here
+          this.logs.push('Permission is granted');
+          this.logs.push(String(result.hasPermission))
+        } else {
+          // Permission is not granted, request it
+          this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.ACCESS_FINE_LOCATION).then(
+            response => {
+              if (response.hasPermission) {
+                // Permission granted
+                // Your code here
+                this.logs.push('Permission granted');
+                this.logs.push(String(response.hasPermission))
+              }
+            },
+            error => {
+              // console.error('Error requesting permission', error);
+              this.logs.push('Error requesting permission', String(error));
+            }
+          );
+        }
+      },
+      err => {
+        // console.error('Error checking permission', err);
+        this.logs.push('Error checking permission', String(err));
+      }
+    );
+  }
+
+  async scanForDevices() {
+    try {
+      await BleClient.initialize();
+
+      this.bluetoothScanResults = [];
+      this.bluetoothIsScanning = true;
+
+      // passing goProControlAndQueryServiceUUID will show only GoPro devices
+      // read more here https://github.com/gopro/OpenGoPro/discussions/41#discussion-3530421
+      // but if you pass empty array to services it will show all nearby bluetooth devices
+      await BleClient.requestLEScan(
+        { services: [] },//[this.goProControlAndQueryServiceUUID]
+        this.onBluetoothDeviceFound.bind(this)
+      );
+
+      const stopScanAfterMilliSeconds = 3500;
+      setTimeout(async () => {
+        await BleClient.stopLEScan();
+        this.bluetoothIsScanning = false;
+        // console.log('stopped scanning');
+        this.logs.push('stopped scanning');
+      }, stopScanAfterMilliSeconds);
+    } catch (error) {
+      this.bluetoothIsScanning = false;
+      // console.error('scanForBluetoothDevices', error);
+      this.logs.push('scanForBluetoothDevices:', String(error));
+    }
+  }
+
+
+  onBluetoothDeviceFound(result: any) {
+    // console.log('received new scan result', result);
+    this.logs.push('received new scan result', String(result));
+    this.bluetoothScanResults.push(result);
+    this.devices.push(result);
+  }
+
+  =========================================================================================
+
+  async convertAdvertisingData(data: ArrayBuffer, device: any){
+    const dataView = new DataView(data);
+
+    //Convert Bits 
+
+    const bitsArray = new Uint8Array(dataView.buffer);
+
+    const totalBits = bitsArray.length * 8;
+
+    let bitsString = '';
+    for (let i = 0; i < bitsArray.length; i++) {
+      bitsString += bitsArray[i].toString(2).padStart(8, '0'); // Convert each number to an 8-bit binary string
+    }
+
+    // console.log('Total Bits:', totalBits);
+    this.logs.push('Total Bits:', String(totalBits));
+    // console.log('Bits String:', bitsString);
+    this.logs.push('Bits String:', String(bitsString));
+
+    // Get Temperature
+  
+    
+
+
+    // Get Battery Percentage
+    let batteryLevel;
+    
+    batteryLevel = await this.readBatteryLevel(device.id);
+    this.logs.push('Battery Percentage:', String(batteryLevel));
+    
+    // const battery_test = new Uint8Array(batteryPercentage[2]);
+    // const teste_battery_beacon_h = dataView.getUint8(2);
+
+    const otherData_1 = dataView.getUint8(1); 
+    const otherData_2 = dataView.getUint8(2);
+    const otherData_3 = dataView.getUint8(3);
+
+    this.logs.push('OtherData_1: dataView.getUint8(1)', String(otherData_1));
+    this.logs.push('OtherData_2 dataView.getUint8(2):', String(otherData_2));
+    this.logs.push('OtherData_3 dataView.getUint8(3):', String(otherData_3));
+  
+    // Agora você pode usar batteryPercentage ou otherData conforme necessário
+
+    // test led color:
+
+    const data_led = new Uint8Array(1);
+    // para exibir ou manipular em seu aplicativo.
+  
+    return `
+            Total Bits: ${totalBits};\n
+            Bits String: ${bitsString};\n
+            Battery Percentage: ${batteryLevel}%;\n
+            Other Data_1: ${otherData_1};\n
+            otherData_2 dataView.getUint8(2):, ${otherData_2};\n
+            otherData_3 dataView.getUint8(3):, ${otherData_3}\n
+            `;
+  }
+
+  // Read Battery Percentage 0x180F
+  async readBatteryLevel(deviceId: string) {
+    const battery = {
+      service: "180F",
+      level: "2A19"
+    };
+
+    
+    try {
+      let deviceIdCache = '';
+      this.ble.connect(deviceId);
+      
+      if (deviceId != deviceIdCache){
+        this.ble.connect(deviceId);
+        deviceIdCache = deviceId;
+      } else {
+        this.ble.disconnect(deviceId);
+        this.logs.push('disconnect:', String(deviceId));
+      }
+
+      if (await this.ble.isConnected(deviceId)) {
+        this.logs.push('isConnected:', String(this.ble.isConnected(deviceId)));
+      } else {
+        this.logs.push('isNOTConecceted:', String(this.ble.isConnected(deviceId)));
+      }
+      
+      // this.logs.push('devicesID:', deviceId);
+      this.ble.read(deviceId, battery.service, battery.level).then(
+        data => {
+          let battery_level = this.onReadBatteryLevel(data);
+          // const batteryLevel = String(data[0]) + "%";
+          // resolve(batteryLevel);
+          return battery_level;
+        },
+        error => {
+          // reject(error);
+          this.logs.push('Error reading battery level:  readBatteryLevel(deviceId: string): Promise<string>', String(error));
+        }
+      );
+    } catch (error) {
+      this.logs.push('Error reading battery level:  readBatteryLevel(deviceId: string): Promise<string>', String(error));
+    };
+  }
+
+  async readBattery_button(deviceId: string) {
+    const isConnected = await this.ble.isConnected(deviceId);
+  
+    if (!isConnected) {
+      // Tentar reconectar
+      try {
+        await this.ble.connect(deviceId);
+      } catch (error) {
+        this.logs.push('Falha ao reconectar:', String(error));
+        return;
+      }
+    }
+  
+    // Continuar com a leitura da bateria
+    const batteryLevel = await this.readBatteryLevel(deviceId);
+    this.logs.push('Battery Percentage: readBattery_button(deviceId: string)', String(batteryLevel));
+  }
+
+  onReadBatteryLevel(data:any) {
+    // console.log(data);
+    this.logs.push('DATA: onReadBatteryLevel(data:any)', String(data));
+    let message;
+    this.logs.push('message: onReadBatteryLevel(data:any)', String(message));
+    let a = new Uint8Array(data);
+    return a[0];
+  }

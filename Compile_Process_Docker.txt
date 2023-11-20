@@ -16,4 +16,5 @@ docker build -t ionic-gradle .
 
 ##############
 # sdk.dir=/usr/local/android-sdk
+# sdk.dir=C:\\Users\\engen\\AppData\\Local\\Android\\Sdk
 ##############

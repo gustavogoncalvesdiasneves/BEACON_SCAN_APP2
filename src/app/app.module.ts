@@ -16,12 +16,16 @@ import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { Injectable } from '@angular/core';
 // import { DeviceMotion, DeviceMotionAccelerationData } from '@ionic-native/device-motion/ngx';
 // import { Gyroscope } from '@ionic-native/gyroscope/ngx';
+// import { BleClient, ScanResult } from '@capacitor-community/bluetooth-le';
+import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
+
+
 
 
 @NgModule({
   declarations: [AppComponent],
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, Injectable, Geolocation, BLE, BluetoothSerial, BluetoothLE, //Gyroscope ,DeviceMotion,
+  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, AndroidPermissions ,Injectable, Geolocation, BLE, BluetoothSerial, BluetoothLE, //Gyroscope ,DeviceMotion,
   ],
   bootstrap: [AppComponent],
 })

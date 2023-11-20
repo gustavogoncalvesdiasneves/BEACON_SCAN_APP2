@@ -5,12 +5,13 @@ import { BluetoothSerial } from '@awesome-cordova-plugins/bluetooth-serial/ngx';
 import { AlertController } from '@ionic/angular';
 //import { error } from 'console';
 import { BLE } from '@ionic-native/ble/ngx';
-import { BluetoothLE, InitParams, Device, ScanStatus } from '@awesome-cordova-plugins/bluetooth-le/ngx';
-import { Geolocation } from '@capacitor/geolocation';
-import { filter, identity } from 'rxjs';
-import { SensorService } from '../sensor.service';
-import { DeviceMotion, DeviceMotionAccelerationData } from '@ionic-native/device-motion/ngx';
-//import { Gyroscope } from 'ionic-native';
+import {
+  BleClient,
+  dataViewToText,
+  numbersToDataView,
+  ScanResult,
+} from '@capacitor-community/bluetooth-le';//import { Gyroscope } from 'ionic-native';
+// import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
 // import { Gyroscope, GyroscopeOrientation, GyroscopeOptions } from '@ionic-native/gyroscope/ngx';
 
 
@@ -44,6 +45,11 @@ export class RadarBlePage {
   advertisingDataParsed: any;
   device_advertising: any;
 
+  logs: string[] = [];
+
+  bluetoothScanResults: ScanResult[] = [];
+  bluetoothIsScanning = false;
+
 
   constructor(
     private navCtrl : NavController,
@@ -51,9 +57,10 @@ export class RadarBlePage {
     private alertContrl : AlertController,
     //private bluetoothLE : BluetoothLE,
     private ble: BLE,
+    // private ble: BleServices,
     ) {
-
-        
+      
+      // BleClient.initialize({ androidNeverForLocation: true });
     }
     
 
@@ -212,25 +219,20 @@ export class RadarBlePage {
       // Adicione mais dispositivos com nomes e RSSI simulados
     ];
   }
+
   
-    activateBluetooth() {
-      //this.deviceIds.push({name: 'Device1',id: '0A.00.27.00.00.08', rssi: -52})
-      //this.deviceIds.push({name: 'Device2', id: '0A.00.27.00.00.02', rssi: -32})
-      console.log(this.deviceIds)
-      this.bluetoothSerial.isEnabled().then(response => {
-        this.isEnabled('IsOn');
-      }).catch(error => {
-        this.activateBluetoothError = 'Erro ao ativar o Bluetooth: ' + error.message;
-        this.isEnabled('IsOff');
-      })
-    }
-  //activateBluetooth() {
-  //  this.bluetoothSerial.isEnabled().then(response => {
-  //    this.isEnabled('IsOn');
-  //  }, error => {
-  //    this.isEnabled('IsOff');
-  //  })
-  //}
+
+  activateBluetooth2() {
+    // this.deviceIds.push({name: 'Device1',id: '0A.00.27.00.00.08', rssi: -52})
+    // this.deviceIds.push({name: 'Device2', id: '0A.00.27.00.00.02', rssi: -32})
+    console.log(this.deviceIds)
+    this.bluetoothSerial.isEnabled().then(response => {
+      this.isEnabled('IsOn');
+    }).catch(error => {
+      this.activateBluetoothError = 'Erro ao ativar o Bluetooth: ' + error.message;
+      this.isEnabled('IsOff');
+    })
+  }
 
   connect(address:any){
     this.bluetoothSerial.connect(address).subscribe(successs => {
@@ -253,7 +255,7 @@ export class RadarBlePage {
     console.log('Dispositivo desconectado')
   }
 
-  scanForDevices() {
+  scanForDevices2() {
     this.devices = []; // Limpa a lista de dispositivos antes de escanear novamente
     if (this.devices_filter.length >= 1){
       this.ble.scan(this.devices_filter, 5).subscribe(device => {
@@ -265,7 +267,7 @@ export class RadarBlePage {
     } else {
       this.ble.scan([], 5).subscribe(device => {
         console.log(device);
-        const convertedData = this.convertAdvertisingData(device.advertising);
+        const convertedData = this.convertAdvertisingData(device.advertising, device);
         // const dataNumbersParse = this.advertisingDataParsed
         const convertedDevice = {
           name: device.name,
@@ -283,22 +285,165 @@ export class RadarBlePage {
     } 
   }
 
-  // convertAdvertisingData(data: ArrayBuffer): string {
-  //   const dataView = new DataView(data);
-  //   this.device_advertising = Array.from(new Uint8Array(dataView.buffer)).toString();
-  //   // this.parseAdvertisingData(this.device_advertising);
-  //   return Array.from(new Uint8Array(dataView.buffer)).toString();
-  // }
+  
+  convertAdvertisingData(data: ArrayBuffer, device: any): string {
+    // const dataView = new DataView(data);
+    const dataView = new Uint8Array(data);
 
-  convertAdvertisingData(data: ArrayBuffer): string {
-    const dataView = new DataView(data);
+    //Convert Bits 
+
     const bitsArray = new Uint8Array(dataView.buffer);
+
+    const totalBits = bitsArray.length * 8;
+
     let bitsString = '';
     for (let i = 0; i < bitsArray.length; i++) {
       bitsString += bitsArray[i].toString(2).padStart(8, '0'); // Convert each number to an 8-bit binary string
     }
-    return bitsString;
+
+    // console.log('Total Bits:', totalBits);
+    this.logs.push('Total Bits:', String(totalBits));
+    // console.log('Bits String:', bitsString);
+    this.logs.push('Bits String:', String(bitsString));
+
+    // Get Temperature
+  
+    
+
+
+    // Get Battery Percentage
+    const battery = {
+      service: "180F",
+      level: "2A19"
+    };
+
+    
+    // const batteryLevel = this.readBatteryLevel(device.id)    
+    const batteryLevel = dataView[0]
+    // const teste_battery_beacon_h = dataView.getUint8(2);
+
+    const otherData_1 = dataView[1]; 
+    const otherData_2 = dataView[2];
+    const otherData_3 = dataView[3];
+
+    this.logs.push('Battery Percentage:', String(batteryLevel));
+    this.logs.push('OtherData_1: dataView.getUint8(1)', String(otherData_1));
+    this.logs.push('OtherData_2 dataView.getUint8(2):', String(otherData_2));
+    this.logs.push('OtherData_3 dataView.getUint8(3):', String(otherData_3));
+  
+    // Agora você pode usar batteryPercentage ou otherData conforme necessário
+
+    // test led color:
+
+    const data_led = new Uint8Array(1);
+    // para exibir ou manipular em seu aplicativo.
+  
+    return `
+            Total Bits: ${totalBits};\n
+            Bits String: ${bitsString};\n
+            Battery Percentage: ${batteryLevel}%;\n
+            Other Data_1: ${otherData_1};\n
+            otherData_2 dataView.getUint8(2):, ${otherData_2};\n
+            otherData_3 dataView.getUint8(3):, ${otherData_3}\n
+            `;
   }
+
+  // Read Battery Porcentage 0x180
+  readBatteryLevel(deviceId: string) {
+    const battery = {
+      service: "180F",
+      level: "2A19"
+    };
+    try{
+    this.ble.read(deviceId, battery.service, battery.level).then(
+      data => {
+        // console.log("Battery Level is " + data[0] + "%");
+        const batteryLevel = new Uint8Array(data)
+        this.logs.push("Battery Level is " + batteryLevel[0] + "%" + " , deviceId: " + deviceId);
+        return String(data[0] + "%");
+      }
+    );
+    } catch (error) {
+      this.logs.push('Error readBatteryLevel(deviceId): ', String(error));
+    }
+
+  }
+
+  readAccelerometerData(deviceId: string) {
+    const accelerometer = {
+      service: "F000AA10-0451-4000-B000-000000000000",
+      data: "F000AA11-0451-4000-B000-000000000000", // read/notify 3 bytes X : Y : Z
+      configuration: "F000AA12-0451-4000-B000-000000000000", // read/write 1 byte
+      period: "F000AA13-0451-4000-B000-000000000000" // read/write 1 byte Period = [Input*10]ms
+    };
+    try {
+      this.ble.startNotification(deviceId, accelerometer.service, accelerometer.data)
+
+      //later on...
+
+      this.ble.read(deviceId, accelerometer.service, accelerometer.configuration).then(
+        data => {
+          const values = new Uint8Array(data);
+          let message;
+          message = "X: " + values[0]/64 + "\n\n" +
+          "Y: " + values[1]/64 + "\n\n" +
+          "Z: " + values[2]/64 * -1;
+          this.logs.push("Accelerometer Data: " + message);
+
+        }
+    )} catch (error) {
+      this.logs.push('Error readAccelerometerData(deviceId): ', String(error));
+    }
+  }
+
+  async startAccelerometerNotifications(deviceId: string) {
+    const accelerometer = {
+      service: "F000AA10-0451-4000-B000-000000000000",
+      data: "F000AA11-0451-4000-B000-000000000000", // read/notify 3 bytes X : Y : Z
+      configuration: "F000AA12-0451-4000-B000-000000000000", // read/write 1 byte
+      period: "F000AA13-0451-4000-B000-000000000000" // read/write 1 byte Period = [Input*10]ms
+    };
+    try {
+      await this.ble.startNotification(deviceId,accelerometer.service,accelerometer.data);
+      // console.log('Notificações do acelerômetro iniciadas');
+      this.logs.push('Notificações do acelerômetro iniciadas');
+      let configData = new Uint8Array(1);
+      configData[0] = 0xFF;
+      this.ble.write(deviceId, accelerometer.service, accelerometer.configuration, configData.buffer).then((res) => {
+        this.logs.push('Accelerometer is on');
+        this.logs.push('res: ' + String(res));
+      })
+    } catch (error) {
+      this.logs.push('Erro ao iniciar notificações do acelerômetro:', String(error));
+    }
+  }
+
+  connectDeviceBle(deviceId: string) {
+    this.ble.connect(deviceId).subscribe((response) =>{
+      this.logs.push('Connected to ' + String(deviceId)),
+      this.logs.push('response: ' + String(response))
+    });
+  }
+
+  parseAdvertisingData(data: ArrayBuffer): { [key: number]: DataView } {
+    const bytes = new Uint8Array(data);
+    let i = 0;
+    const advertisingData: { [key: number]: DataView } = {};
+  
+    while (i < bytes.length) {
+      const length = bytes[i++];
+      if (length === 0) break; // Length 0 is not allowed
+  
+      const type = bytes[i++];
+      const value = data.slice(i, i + length - 1);
+      i += length - 1;
+  
+      advertisingData[type] = new DataView(value);
+    }
+  
+    return advertisingData;
+  }
+
   
   
   // parseAdvertisingData(dataString: string): number[] {
